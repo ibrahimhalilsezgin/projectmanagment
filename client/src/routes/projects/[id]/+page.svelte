@@ -3,6 +3,8 @@
     import io from "socket.io-client";
     import { onMount, tick } from "svelte";
     import AnsiToHtml from "ansi-to-html";
+    import { auth } from "../../../stores/auth";
+    import { get } from "svelte/store";
 
     let projectId = $derived($page.params.id);
     let project = $state(null);
@@ -40,7 +42,9 @@
 
     async function loadProject() {
         try {
-            const res = await fetch("http://localhost:3000/projects");
+            const res = await fetch("http://localhost:3000/projects", {
+                headers: { Authorization: `Bearer ${get(auth).token}` },
+            });
             if (res.ok) {
                 const projects = await res.json();
                 project = projects.find((p) => p.id === projectId);
@@ -54,6 +58,9 @@
         try {
             const res = await fetch(
                 `http://localhost:3000/projects/${projectId}/config`,
+                {
+                    headers: { Authorization: `Bearer ${get(auth).token}` },
+                },
             );
             if (res.ok) {
                 const config = await res.json();
@@ -90,6 +97,9 @@
         try {
             const res = await fetch(
                 `http://localhost:3000/process/${projectId}/stats`,
+                {
+                    headers: { Authorization: `Bearer ${get(auth).token}` },
+                },
             );
             const data = await res.json();
 
@@ -212,7 +222,10 @@
         try {
             const res = await fetch(
                 `http://localhost:3000/git/${projectId}/${action}`,
-                { method: "POST" },
+                {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${get(auth).token}` },
+                },
             );
             const data = await res.json();
             const logs = [];
@@ -248,7 +261,10 @@
                 `http://localhost:3000/process/${projectId}/${action}`,
                 {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${get(auth).token}`,
+                    },
                     body: JSON.stringify({ appName }),
                 },
             );
@@ -277,6 +293,9 @@
     async function showConfigEditor() {
         const res = await fetch(
             `http://localhost:3000/projects/${projectId}/config`,
+            {
+                headers: { Authorization: `Bearer ${get(auth).token}` },
+            },
         );
         if (res.ok) {
             const json = await res.json();
@@ -290,7 +309,10 @@
             const config = JSON.parse(configJson);
             await fetch(`http://localhost:3000/projects/${projectId}/config`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${get(auth).token}`,
+                },
                 body: JSON.stringify(config),
             });
             // Log to the first app's console
@@ -322,7 +344,9 @@
     $effect(() => {
         if (activeTab === "settings") {
             // Fetch config text for editor
-            fetch(`http://localhost:3000/projects/${projectId}/config`)
+            fetch(`http://localhost:3000/projects/${projectId}/config`, {
+                headers: { Authorization: `Bearer ${get(auth).token}` },
+            })
                 .then((res) => res.json())
                 .then((json) => {
                     configJson = JSON.stringify(json, null, 2);
@@ -413,7 +437,10 @@
                 `http://localhost:3000/projects/${projectId}/files/delete`,
                 {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${get(auth).token}`,
+                    },
                     body: JSON.stringify({
                         items: Array.from(selectedItems),
                         currentPath: currentPath,
@@ -447,7 +474,10 @@
                 `http://localhost:3000/projects/${projectId}/files/unzip`,
                 {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${get(auth).token}`,
+                    },
                     body: JSON.stringify({ filePath }),
                 },
             );
@@ -471,7 +501,10 @@
                 `http://localhost:3000/projects/${projectId}/files/create`,
                 {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${get(auth).token}`,
+                    },
                     body: JSON.stringify({
                         parentPath: currentPath,
                         name: newItemName,
@@ -498,6 +531,9 @@
         try {
             const res = await fetch(
                 `http://localhost:3000/projects/${projectId}/files?path=${encodeURIComponent(pathVal)}`,
+                {
+                    headers: { Authorization: `Bearer ${get(auth).token}` },
+                },
             );
             if (res.ok) {
                 files = await res.json();
@@ -531,6 +567,9 @@
                         : `${currentPath}/${item.name}`;
                 const res = await fetch(
                     `http://localhost:3000/projects/${projectId}/files/read?path=${encodeURIComponent(filePath)}`,
+                    {
+                        headers: { Authorization: `Bearer ${get(auth).token}` },
+                    },
                 );
                 if (res.ok) {
                     const data = await res.json();
@@ -557,7 +596,10 @@
                 `http://localhost:3000/projects/${projectId}/files/write`,
                 {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${get(auth).token}`,
+                    },
                     body: JSON.stringify({
                         path: activeFile.path,
                         content: activeFile.content,
@@ -624,6 +666,7 @@
                     `http://localhost:3000/projects/${projectId}/files/upload?path=${encodeURIComponent(currentPath)}`,
                     {
                         method: "POST",
+                        headers: { Authorization: `Bearer ${get(auth).token}` },
                         body: formData,
                     },
                 );

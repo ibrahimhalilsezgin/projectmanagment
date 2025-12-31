@@ -26,13 +26,16 @@ const gitRoutes = require('./routes/git'); // Renamed from gitRouter
 const processRoutes = require('./routes/process'); // Renamed from processRouter
 const filesRoutes = require('./routes/files'); // New
 
-app.use('/projects', projectsRoutes);
-app.use('/projects', filesRoutes); // merge with /projects namespace
+const authRoutes = require('./routes/auth');
+const authenticateToken = require('./middleware/auth');
 
+app.use('/auth', authRoutes);
 
-app.use('/git', gitRoutes);
-app.use('/process', processRoutes);
-// app.use('/upload', uploadRoutes); // REMOVED
+// Protected Routes
+app.use('/projects', authenticateToken, projectsRoutes);
+app.use('/projects', authenticateToken, filesRoutes);
+app.use('/git', authenticateToken, gitRoutes);
+app.use('/process', authenticateToken, processRoutes);
 
 app.get('/', (req, res) => {
     res.send('Server is running!');

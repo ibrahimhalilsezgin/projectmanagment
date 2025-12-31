@@ -1,4 +1,7 @@
 <script>
+    import { auth } from "../stores/auth";
+    import { get } from "svelte/store";
+
     let projects = $state([]);
     let newProjectName = $state("");
     let newProjectPath = $state("");
@@ -6,7 +9,11 @@
 
     async function loadProjects() {
         try {
-            const res = await fetch("http://localhost:3000/projects");
+            const res = await fetch("http://localhost:3000/projects", {
+                headers: {
+                    Authorization: `Bearer ${get(auth).token}`,
+                },
+            });
             if (res.ok) {
                 projects = await res.json();
             }
@@ -38,7 +45,10 @@
 
             const res = await fetch("http://localhost:3000/projects", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${get(auth).token}`,
+                },
                 body: JSON.stringify(body),
             });
 
@@ -64,6 +74,9 @@
         try {
             await fetch(`http://localhost:3000/projects/${id}`, {
                 method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${get(auth).token}`,
+                },
             });
             loadProjects();
         } catch (e) {
