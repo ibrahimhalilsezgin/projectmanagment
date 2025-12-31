@@ -1,0 +1,1 @@
+console.log("Stats running..."); setInterval(() => {}, 1000);

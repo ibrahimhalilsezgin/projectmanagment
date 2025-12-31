@@ -1,0 +1,1 @@
+console.log('Running custom script!'); setInterval(() => {}, 1000);
