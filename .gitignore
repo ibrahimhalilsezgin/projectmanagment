@@ -1,5 +1,7 @@
 /managed_projects
 /node_modules
 /uploads
-/server/node_modules
 /client/node_modules
+/server/server.log
+/server/server_new.log
+/server/node_modules
